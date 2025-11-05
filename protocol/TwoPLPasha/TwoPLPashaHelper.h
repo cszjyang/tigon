@@ -1967,11 +1967,21 @@ out_unlock_lmeta:
                                         DCHECK(cur_scc_data->get_flag(TwoPLPashaSharedDataSCC::valid_flag_index) == false);
                                 }
                                 migration_policy_meta = cur_scc_data->migration_policy_meta;
+                                
+                                // free the CXL row
+                                if (context.enable_scc == false) {
+                                        cxl_memory.cxlalloc_free_wrapper(cur_scc_data, sizeof(TwoPLPashaSharedDataSCC) + table->value_size(), CXLMemory::DATA_FREE);
+                                        global_ebr_meta->add_retired_object(cur_scc_data, sizeof(TwoPLPashaSharedDataSCC) + table->value_size(), CXLMemory::DATA_FREE);
+                                }
+                                cxl_memory.cxlalloc_free_wrapper(cur_smeta, sizeof(TwoPLPashaMetadataShared), CXLMemory::METADATA_FREE);
+                                global_ebr_meta->add_retired_object(cur_smeta, sizeof(TwoPLPashaMetadataShared), CXLMemory::METADATA_FREE);
+                                
                                 cur_smeta->unlock();
 
                                 need_remove_from_cxl_index = true;
                                 need_move_out_from_migration_tracker = true;
 
+                                cur_lmeta->migrated_row = nullptr;
                                 cur_lmeta->is_migrated = false;
                         }
 
