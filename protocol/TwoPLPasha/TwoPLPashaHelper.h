@@ -1121,6 +1121,8 @@ out_unlock_lmeta:
                         }
 
                         if (is_insert == true) {
+                                // prepare read to avoid CHECK fault in finish_write
+                                scc_manager->prepare_read(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
                                 scc_manager->finish_write(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
                         }
                         smeta->unlock();
@@ -1146,6 +1148,8 @@ out_unlock_lmeta:
                 }
 
                 if (is_insert == true) {
+                        // prepare read to avoid CHECK fault in finish_write
+                        scc_manager->prepare_read(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
                         scc_manager->finish_write(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
                 }
                 smeta->unlock();
