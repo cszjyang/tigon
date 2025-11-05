@@ -623,7 +623,7 @@ class TwoPLPashaMessageHandler {
                 auto key = insertKey.get_key();
                 CXLTableBase *target_cxl_table = twopl_pasha_global_helper->get_cxl_table(table_id, partition_id);
                 char *cxl_row = reinterpret_cast<char *>(target_cxl_table->search(key));
-                TwoPLPashaHelper::remote_modify_tuple_valid_bit(cxl_row, true);
+                twopl_pasha_global_helper->remote_modify_tuple_valid_bit(cxl_row, true, true);
 
                 // record it locally
                 insertKey.set_inserted_cxl_row(cxl_row);

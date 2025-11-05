@@ -431,7 +431,7 @@ template <class Database> class TwoPLPasha {
                                         // make the placeholder as valid
                                         std::atomic<uint64_t> *meta = table->search_metadata(key);      // cannot use cached row
                                         DCHECK(meta != nullptr);
-                                        TwoPLPashaHelper::modify_tuple_valid_bit(*meta, true);
+                                        twopl_pasha_global_helper->modify_tuple_valid_bit(*meta, true, true);
                                 } else {
                                         auto coordinatorID = partitioner.master_coordinator(partitionId);
                                         txn.network_size += MessageFactoryType::new_remote_insert_message(
@@ -472,7 +472,7 @@ template <class Database> class TwoPLPasha {
                                         for (auto i = 0u; i < scan_results.size(); i++) {
                                                 char *cxl_row = reinterpret_cast<char *>(scan_results[i].meta);
                                                 DCHECK(cxl_row != nullptr);
-                                                TwoPLPashaHelper::remote_modify_tuple_valid_bit(cxl_row, false);
+                                                twopl_pasha_global_helper->remote_modify_tuple_valid_bit(cxl_row, false);
                                                 // TwoPLPashaHelper::decrease_reference_count_via_ptr(cxl_row);
                                                 txn.network_size += MessageFactoryType::new_remote_delete_message(*messages[coordinatorID], *table, scan_results[i].key);
                                         }
@@ -493,7 +493,7 @@ template <class Database> class TwoPLPasha {
                                         auto key = insertKey.get_key();
                                         std::atomic<uint64_t> *meta = table->search_metadata(key);      // cannot use cached row
                                         DCHECK(meta != nullptr);
-                                        TwoPLPashaHelper::modify_tuple_valid_bit(*meta, true);
+                                        twopl_pasha_global_helper->modify_tuple_valid_bit(*meta, true, true);
                                 } else {
                                         // does not support remote insert & delete
                                         DCHECK(0);

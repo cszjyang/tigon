@@ -1103,7 +1103,7 @@ out_unlock_lmeta:
                 smeta->unlock();
 	}
 
-        static void modify_tuple_valid_bit(std::atomic<uint64_t> &meta, bool is_valid)
+        void modify_tuple_valid_bit(std::atomic<uint64_t> &meta, bool is_valid, bool is_insert = false)
         {
                 TwoPLPashaMetadataLocal *lmeta = reinterpret_cast<TwoPLPashaMetadataLocal *>(meta.load());
 
@@ -1119,6 +1119,10 @@ out_unlock_lmeta:
                         } else {
                                 scc_data->clear_flag(TwoPLPashaSharedDataSCC::valid_flag_index);
                         }
+
+                        if (is_insert == true) {
+                                scc_manager->finish_write(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
+                        }
                         smeta->unlock();
                 } else {
                         DCHECK(lmeta->is_valid == !is_valid);
@@ -1127,7 +1131,7 @@ out_unlock_lmeta:
                 lmeta->unlock();
         }
 
-        static void remote_modify_tuple_valid_bit(char *row, bool is_valid)
+        void remote_modify_tuple_valid_bit(char *row, bool is_valid, bool is_insert = false)
         {
                 TwoPLPashaMetadataShared *smeta = reinterpret_cast<TwoPLPashaMetadataShared *>(row);
                 TwoPLPashaSharedDataSCC *scc_data = smeta->get_scc_data();
@@ -1139,6 +1143,10 @@ out_unlock_lmeta:
                         scc_data->set_flag(TwoPLPashaSharedDataSCC::valid_flag_index);
                 } else {
                         scc_data->clear_flag(TwoPLPashaSharedDataSCC::valid_flag_index);
+                }
+
+                if (is_insert == true) {
+                        scc_manager->finish_write(smeta, coordinator_id, scc_data, sizeof(TwoPLPashaSharedDataSCC));
                 }
                 smeta->unlock();
         }
